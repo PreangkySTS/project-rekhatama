@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<!-- This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
@@ -33,4 +33,31 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details. -->
+
+
+# Nama Proyek Next.js Form Login
+
+Deskripsi singkat tentang proyek ini
+Project ini adalah project login dan dashboard  responsive 
+Fiturnya tentu ada form login 
+Side bar untuk melihat model 
+Kalender untuk melihat adanya aktivitas atau tidak
+
+## Prasyarat
+
+Sebelum memulai, pastikan kamu memiliki hal-hal berikut:
+
+1. **[Node.js](https://nodejs.org/)**: Versi 14 atau lebih baru. Node.js diperlukan untuk menjalankan server dan build aplikasi. Unduh dan instal Node.js dari situs web resmi jika belum terpasang.
+2. **[npm](https://www.npmjs.com/)** atau **[Yarn](https://yarnpkg.com/)**: Pengelola paket JavaScript. npm biasanya terinstal bersama Node.js, tetapi Yarn perlu diinstal terpisah jika lebih memilihnya.
+
+## Langkah-langkah untuk Membuka Proyek
+
+Ikuti langkah-langkah ini untuk membuka dan menjalankan proyek Next.js kamu:
+
+### 1. Clone Repository dari GitHub
+
+Clone repository proyek dari GitHub ke komputer lokal menggunakan Git. Jalankan perintah berikut di terminal atau command prompt:
+
+```bash
+git clone https://github.com/xwyqia/respon.git
