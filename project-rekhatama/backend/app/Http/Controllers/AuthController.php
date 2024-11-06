@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+// ieu tah pull
+
 class AuthController extends Controller
 {
     // Method login API
@@ -16,8 +18,6 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
-        // naon
 
         $user = User::where('email', $request->email)->first();
 

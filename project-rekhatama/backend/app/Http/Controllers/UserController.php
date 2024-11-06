@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+// kabeh pull weh
 class UserController extends Controller
 {
     public function store(Request $request)
