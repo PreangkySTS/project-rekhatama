@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\TransactionHistory;
 use App\Models\Status;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
@@ -104,27 +105,43 @@ class TransactionController extends Controller
     // get
     public function index()
     {
-        // Ambil data transaksi dari tabel transaction untuk user yang sedang login
         $transactions = Transaction::where('user_id', Auth::id())->get();
-        return response()->json(['transactions' => $transactions], 200);
-    }
 
+    // Memisahkan tanggal menjadi tanggal, bulan, dan tahun
+    $transactions->transform(function($transaction) {
+        // Pastikan ada kolom created_at atau transaksi_date untuk diolah
+        $transaction->day = $transaction->created_at->day; // Ambil hari
+        $transaction->month = $transaction->created_at->month; // Ambil bulan
+        $transaction->year = $transaction->created_at->year; // Ambil tahun
 
-    public function indexHistory()
-    {
-        // Ambil data history transaksi dari tabel transaction_history untuk user yang sedang login
-        $history = TransactionHistory::where('user_id', Auth::id())->get();
+        // Jika ingin format custom
+        $transaction->formatted_date = $transaction->created_at->format('Y-m-d'); // Format tanggal
 
-        // Mengembalikan response dalam format JSON
-        return response()->json(['history' => $history], 200);
+        return $transaction;
+    });
+
+    // Kembalikan data transaksi dalam format JSON
+    return response()->json(['transactions' => $transactions], 200);
     }
 
     public function getTransactionsByStatus($statusId)
 {
+    // Ambil transaksi berdasarkan status_id dan user_id
     $transactions = DB::table('transaction_history')
                       ->where('status_id', $statusId)
                       ->where('user_id', Auth::id())
                       ->get();
+
+    // Format tanggal transaksi menggunakan Carbon
+    $transactions->transform(function($transaction) {
+        // Pastikan ada kolom created_at
+        $transaction->day = Carbon::parse($transaction->created_at)->day; // Mengambil tanggal
+        $transaction->month = Carbon::parse($transaction->created_at)->month; // Mengambil bulan
+        $transaction->year = Carbon::parse($transaction->created_at)->year; // Mengambil tahun
+        $transaction->formatted_date = Carbon::parse($transaction->created_at)->format('Y-m-d'); // Format tanggal
+
+        return $transaction;
+    });
 
     return response()->json(['transactions' => $transactions], 200);
 }
@@ -165,7 +182,7 @@ public function quadrantPercentagesSales()
     }
 
     return response()->json([
-        'user_percentages' => $userPercentages
+        'Transaction_percentages' => $userPercentages
     ]);
 }
 
@@ -223,4 +240,53 @@ public function quadrantPercentages()
         'users_quadrant_percentages' => $usersQuadrantPercentages
     ]);
 }
+
+public function transactionTotalPercentagesDaily()
+    {
+        $today = Carbon::today();
+        return $this->calculateQuadrantPercentages($today, 'day');
+    }
+
+    public function transactionTotalPercentagesMonthly()
+    {
+        $currentMonth = Carbon::now()->startOfMonth();
+        return $this->calculateQuadrantPercentages($currentMonth, 'month');
+    }
+
+    public function transactionTotalPercentagesYearly()
+    {
+        $currentYear = Carbon::now()->startOfYear();
+        return $this->calculateQuadrantPercentages($currentYear, 'year');
+    }
+
+    private function calculateQuadrantPercentages($startDate, $period)
+    {
+        $endDate = $period === 'day' ? Carbon::today()->endOfDay() :
+                   ($period === 'month' ? Carbon::now()->endOfMonth() : Carbon::now()->endOfYear());
+
+        $totalTransactions = DB::table('transactions')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->count();
+
+        $quadrantCounts = DB::table('transactions')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->select('quadrant', DB::raw('count(*) as count'))
+            ->groupBy('quadrant')
+            ->pluck('count', 'quadrant')
+            ->toArray();
+
+        $percentages = [];
+        foreach ([1, 2, 3, 4] as $quadrant) {
+            $percentages[$quadrant] = isset($quadrantCounts[$quadrant])
+                ? ($quadrantCounts[$quadrant] / $totalTransactions) * 100
+                : 0;
+        }
+
+        return response()->json([
+            'period' => $period,
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $endDate->toDateString(),
+            'percentages' => $percentages
+        ]);
+    }
 }

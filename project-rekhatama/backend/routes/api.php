@@ -17,7 +17,7 @@ use SebastianBergmann\CodeCoverage\Util\Percentage;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-// .
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -36,8 +36,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // history
     Route::get('/transactions/status/{statusId}', [TransactionController::class, 'getTransactionsByStatus']);
 
-    // register
-    Route::post('/register', [UserController::class, 'store']); //tambah users
+    // persentase
+
+Route::get('/transactions/total-percentages-daily', [TransactionController::class, 'transactionTotalPercentagesDaily']);
+Route::get('/transactions/total-percentages-monthly', [TransactionController::class, 'transactionTotalPercentagesMonthly']);
+Route::get('/transactions/total-percentages-yearly', [TransactionController::class, 'transactionTotalPercentagesYearly']);
 
     // persentase
     Route::get('/transactions/quadrant-sales-percentages', [TransactionController::class, 'quadrantPercentagesSales']);
@@ -45,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('transactions/quadrant-percentages', [TransactionController::class, 'quadrantPercentages']);
 });
 
+// register
+Route::post('/register', [UserController::class, 'store']); //tambah users
 
 // users
 Route::get('/users', [UserController::class, 'index']);  // get semua users
