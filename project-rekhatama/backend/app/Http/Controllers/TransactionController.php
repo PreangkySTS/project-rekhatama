@@ -23,28 +23,28 @@ class TransactionController extends Controller
 
         // Validasi data
         $request->validate([
-            'perusahaan' => 'required|string|max:255',
-            'quadrant'=> 'required|integer|max:255',
-            'pic'=> 'required|string|max:255',
-            'jabatan'=> 'required|string|max:255',
-            'progress'=> 'required|string|max:255',
+            'perusahaan' => 'required|string|max:255|regex:/^(?![!@#])[a-zA-Z0-9].*$/',
+            'quadrant' => 'required|integer|max:255|regex:/^(?![!@#])[a-zA-Z0-9].*$/',
+            'pic' => 'required|string|max:255|regex:/^(?![!@#])[a-zA-Z0-9].*$/',
+            'jabatan' => 'required|string|max:255|regex:/^(?![!@#])[a-zA-Z0-9].*$/',
+            'progress' => 'required|string|max:255|regex:/^(?![!@#])[a-zA-Z0-9].*$/',
         ]);
 
         // inset data ke tabel history pake user_id
         $transactionHistory = TransactionHistory::create([
             'user_id' => Auth::id(),// Mengambil user_id dari user yang sedang login
-            'perusahaan'  => $request->perusahaan,
+            'perusahaan' => $request->perusahaan,
             'quadrant' => $request->quadrant,
             'pic' => $request->pic,
             'jabatan' => $request->jabatan,
             'progress' => $request->progress,
-            'status_id'=> 1,
+            'status_id' => 1,
         ]);
 
         // Insert data ke tabel transactions pake user_id dari auth /atau bearer token
         $transaction = Transaction::create([
             'user_id' => Auth::id(),// Mengambil user_id dari user yang sedang login
-            'perusahaan'  => $request->perusahaan,
+            'perusahaan' => $request->perusahaan,
             'quadrant' => $request->quadrant,
             'pic' => $request->pic,
             'jabatan' => $request->jabatan,
@@ -63,10 +63,10 @@ class TransactionController extends Controller
         // Validasi data
         $request->validate([
             'perusahaan' => 'required|string|max:255',
-            'quadrant'=> 'required|integer|max:255',
-            'pic'=> 'required|string|max:255',
-            'jabatan'=> 'required|string|max:255',
-            'progress'=> 'required|string|max:255',
+            'quadrant' => 'required|integer|max:255',
+            'pic' => 'required|string|max:255',
+            'jabatan' => 'required|string|max:255',
+            'progress' => 'required|string|max:255',
         ]);
 
         // Temukan user berdasarkan ID
@@ -107,44 +107,44 @@ class TransactionController extends Controller
     {
         $transactions = Transaction::where('user_id', Auth::id())->get();
 
-    // Memisahkan tanggal menjadi tanggal, bulan, dan tahun
-    $transactions->transform(function($transaction) {
-        // Pastikan ada kolom created_at atau transaksi_date untuk diolah
-        $transaction->day = $transaction->created_at->day; // Ambil hari
-        $transaction->month = $transaction->created_at->month; // Ambil bulan
-        $transaction->year = $transaction->created_at->year; // Ambil tahun
+        // Memisahkan tanggal menjadi tanggal, bulan, dan tahun
+        $transactions->transform(function ($transaction) {
+            // Pastikan ada kolom created_at atau transaksi_date untuk diolah
+            $transaction->day = $transaction->created_at->day; // Ambil hari
+            $transaction->month = $transaction->created_at->month; // Ambil bulan
+            $transaction->year = $transaction->created_at->year; // Ambil tahun
 
-        // Jika ingin format custom
-        $transaction->formatted_date = $transaction->created_at->format('Y-m-d'); // Format tanggal
+            // Jika ingin format custom
+            $transaction->formatted_date = $transaction->created_at->format('Y-m-d'); // Format tanggal
 
-        return $transaction;
-    });
+            return $transaction;
+        });
 
-    // Kembalikan data transaksi dalam format JSON
-    return response()->json(['transactions' => $transactions], 200);
+        // Kembalikan data transaksi dalam format JSON
+        return response()->json(['transactions' => $transactions], 200);
     }
 
     public function getTransactionsByStatus($statusId)
-{
-    // Ambil transaksi berdasarkan status_id dan user_id
-    $transactions = DB::table('transaction_history')
-                      ->where('status_id', $statusId)
-                      ->where('user_id', Auth::id())
-                      ->get();
+    {
+        // Ambil transaksi berdasarkan status_id dan user_id
+        $transactions = DB::table('transaction_history')
+            ->where('status_id', $statusId)
+            ->where('user_id', Auth::id())
+            ->get();
 
-    // Format tanggal transaksi menggunakan Carbon
-    $transactions->transform(function($transaction) {
-        // Pastikan ada kolom created_at
-        $transaction->day = Carbon::parse($transaction->created_at)->day; // Mengambil tanggal
-        $transaction->month = Carbon::parse($transaction->created_at)->month; // Mengambil bulan
-        $transaction->year = Carbon::parse($transaction->created_at)->year; // Mengambil tahun
-        $transaction->formatted_date = Carbon::parse($transaction->created_at)->format('Y-m-d'); // Format tanggal
+        // Format tanggal transaksi menggunakan Carbon
+        $transactions->transform(function ($transaction) {
+            // Pastikan ada kolom created_at
+            $transaction->day = Carbon::parse($transaction->created_at)->day; // Mengambil tanggal
+            $transaction->month = Carbon::parse($transaction->created_at)->month; // Mengambil bulan
+            $transaction->year = Carbon::parse($transaction->created_at)->year; // Mengambil tahun
+            $transaction->formatted_date = Carbon::parse($transaction->created_at)->format('Y-m-d'); // Format tanggal
 
-        return $transaction;
-    });
+            return $transaction;
+        });
 
-    return response()->json(['transactions' => $transactions], 200);
-}
+        return response()->json(['transactions' => $transactions], 200);
+    }
 
 
     // ekspor ke pdf
@@ -161,90 +161,99 @@ class TransactionController extends Controller
     }
 
     // persentase
-public function quadrantPercentagesSales()
-{
-    $userId = Auth::id();
+    public function quadrantPercentagesSales()
+    {
+        $userId = Auth::id();
 
-    // 1. Persentase quadrant untuk user yang login
-    $userTotalTransactions = Transaction::where('user_id', $userId)->count();
+        // 1. Persentase quadrant untuk user yang login
+        $userTotalTransactions = Transaction::where('user_id', $userId)->count();
 
-    $userQuadrantCounts = Transaction::select('quadrant', DB::raw('count(*) as count'))
-        ->where('user_id', $userId)
-        ->groupBy('quadrant')
-        ->pluck('count', 'quadrant')
-        ->toArray();
+        $userQuadrantCounts = Transaction::select('quadrant', DB::raw('count(*) as count'))
+            ->where('user_id', $userId)
+            ->groupBy('quadrant')
+            ->pluck('count', 'quadrant')
+            ->toArray();
 
-    $userPercentages = [];
-    foreach ([1, 2, 3, 4] as $quadrant) {
-        $userPercentages[$quadrant] = isset($userQuadrantCounts[$quadrant])
-            ? ($userQuadrantCounts[$quadrant] / $userTotalTransactions) * 100
-            : 0;
+        $userPercentages = [];
+        foreach ([1, 2, 3, 4] as $quadrant) {
+            $userPercentages[$quadrant] = isset($userQuadrantCounts[$quadrant])
+                ? ($userQuadrantCounts[$quadrant] / $userTotalTransactions) * 100
+                : 0;
+        }
+
+        return response()->json([
+            'Transaction_percentages' => $userPercentages
+        ]);
     }
 
-    return response()->json([
-        'Transaction_percentages' => $userPercentages
-    ]);
-}
-
-public function quadrantPercentagesTotal()
-{
-    if (!in_array(Auth::user()->role->level, [10, 9])) {
+    public function quadrantPercentagesTotal()
+    {
+        if (!in_array(Auth::user()->role->level, [10, 9])) {
             return response()->json(['message' => 'Unauthorized access'], 403);
         }
 
-    $totalTransactions = Transaction::count();
+        $totalTransactions = Transaction::count();
 
-    $totalQuadrantCounts = Transaction::select('quadrant', DB::raw('count(*) as count'))
-        ->groupBy('quadrant')
-        ->pluck('count', 'quadrant')
-        ->toArray();
+        $totalQuadrantCounts = Transaction::select('quadrant', DB::raw('count(*) as count'))
+            ->groupBy('quadrant')
+            ->pluck('count', 'quadrant')
+            ->toArray();
 
-    $totalPercentages = [];
-    foreach ([1, 2, 3, 4] as $quadrant) {
-        $totalPercentages[$quadrant] = isset($totalQuadrantCounts[$quadrant])
-            ? ($totalQuadrantCounts[$quadrant] / $totalTransactions) * 100
-            : 0;
-    }
-
-    return response()->json([
-        'total_percentages' => $totalPercentages
-    ]);
-}
-
-public function quadrantPercentages()
-{
-    $usersQuadrantPercentages = [];
-
-    $allUsersTransactions = Transaction::select('user_id', 'quadrant', DB::raw('count(*) as count'))
-        ->groupBy('user_id', 'quadrant')
-        ->get();
-
-    $userTransactionCounts = Transaction::select('user_id', DB::raw('count(*) as total'))
-        ->groupBy('user_id')
-        ->pluck('total', 'user_id')
-        ->toArray();
-
-    foreach ($allUsersTransactions as $transaction) {
-        $userId = $transaction->user_id;
-        $quadrant = $transaction->quadrant;
-
-        if (!isset($usersQuadrantPercentages[$userId])) {
-            $usersQuadrantPercentages[$userId] = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
+        $totalPercentages = [];
+        foreach ([1, 2, 3, 4] as $quadrant) {
+            $totalPercentages[$quadrant] = isset($totalQuadrantCounts[$quadrant])
+                ? ($totalQuadrantCounts[$quadrant] / $totalTransactions) * 100
+                : 0;
         }
 
-        $userTotal = $userTransactionCounts[$userId] ?? 1;
-        $usersQuadrantPercentages[$userId][$quadrant] = ($transaction->count / $userTotal) * 100;
+        return response()->json([
+            'total_percentages' => $totalPercentages
+        ]);
     }
 
-    return response()->json([
-        'users_quadrant_percentages' => $usersQuadrantPercentages
-    ]);
-}
+    public function quadrantPercentages()
+    {
+        if (!in_array(Auth::user()->role->level, [10, 9])) {
+            return response()->json(['message' => 'Unauthorized access'], 403);
+        }
+        $usersQuadrantPercentages = [];
 
-public function transactionTotalPercentagesDaily()
+        $allUsersTransactions = Transaction::select('user_id', 'quadrant', DB::raw('count(*) as count'))
+            ->groupBy('user_id', 'quadrant')
+            ->get();
+
+        $userTransactionCounts = Transaction::select('user_id', DB::raw('count(*) as total'))
+            ->groupBy('user_id')
+            ->pluck('total', 'user_id')
+            ->toArray();
+
+        foreach ($allUsersTransactions as $transaction) {
+            $userId = $transaction->user_id;
+            $quadrant = $transaction->quadrant;
+
+            if (!isset($usersQuadrantPercentages[$userId])) {
+                $usersQuadrantPercentages[$userId] = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
+            }
+
+            $userTotal = $userTransactionCounts[$userId] ?? 1;
+            $usersQuadrantPercentages[$userId][$quadrant] = ($transaction->count / $userTotal) * 100;
+        }
+
+        return response()->json([
+            'users_quadrant_percentages' => $usersQuadrantPercentages
+        ]);
+    }
+
+    public function transactionTotalPercentagesDaily()
     {
         $today = Carbon::today();
         return $this->calculateQuadrantPercentages($today, 'day');
+    }
+
+    public function transactionTotalPercentagesDailyUsers()
+    {
+        $today = Carbon::today();
+        return $this->calculateQuadrantPercentagesByUser($today, 'day', Auth::id());
     }
 
     public function transactionTotalPercentagesMonthly()
@@ -253,16 +262,68 @@ public function transactionTotalPercentagesDaily()
         return $this->calculateQuadrantPercentages($currentMonth, 'month');
     }
 
+    public function transactionTotalPercentagesMonthlyUsers()
+    {
+        $currentMonth = Carbon::now()->startOfMonth();
+        return $this->calculateQuadrantPercentagesByUser($currentMonth, 'month', Auth::id());
+    }
+
     public function transactionTotalPercentagesYearly()
     {
         $currentYear = Carbon::now()->startOfYear();
         return $this->calculateQuadrantPercentages($currentYear, 'year');
     }
 
+    public function transactionTotalPercentagesYearlyUsers()
+    {
+        $currentYear = Carbon::now()->startOfYear();
+        return $this->calculateQuadrantPercentagesByUser($currentYear, 'year', Auth::id());
+    }
+
+    private function calculateQuadrantPercentagesByUser($startDate, $period, $userId)
+    {
+        // Menentukan batas akhir periode
+        $endDate = $period === 'day' ? Carbon::today()->endOfDay() :
+            ($period === 'month' ? Carbon::now()->endOfMonth() : Carbon::now()->endOfYear());
+
+        // Menghitung total transaksi dalam periode untuk pengguna spesifik
+        $totalTransactions = DB::table('transactions')
+            ->where('user_id', $userId)
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->count();
+
+        // Menghitung jumlah transaksi per quadrant dalam periode untuk pengguna spesifik
+        $quadrantCounts = DB::table('transactions')
+            ->where('user_id', $userId)
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->select('quadrant', DB::raw('count(*) as count'))
+            ->groupBy('quadrant')
+            ->pluck('count', 'quadrant')
+            ->toArray();
+
+        // Menghitung persentase untuk setiap quadrant
+        $percentages = [];
+        foreach ([1, 2, 3, 4] as $quadrant) {
+            $percentages[$quadrant] = isset($quadrantCounts[$quadrant])
+                ? ($quadrantCounts[$quadrant] / $totalTransactions) * 100
+                : 0;
+        }
+
+        return response()->json([
+            'period' => $period,
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $endDate->toDateString(),
+            'percentages' => $percentages
+        ]);
+    }
+
     private function calculateQuadrantPercentages($startDate, $period)
     {
+        if (!in_array(Auth::user()->role->level, [10, 9])) {
+            return response()->json(['message' => 'Unauthorized access'], 403);
+        }
         $endDate = $period === 'day' ? Carbon::today()->endOfDay() :
-                   ($period === 'month' ? Carbon::now()->endOfMonth() : Carbon::now()->endOfYear());
+            ($period === 'month' ? Carbon::now()->endOfMonth() : Carbon::now()->endOfYear());
 
         $totalTransactions = DB::table('transactions')
             ->whereBetween('transaction_date', [$startDate, $endDate])

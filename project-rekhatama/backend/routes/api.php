@@ -27,8 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // transaksi
     Route::post('/transactions', [TransactionController::class, 'store']);
     Route::get('/transactions', [TransactionController::class, 'index']);
-    Route::put('/transactions/{id}', [TransactionController::class,'update']);
-    Route::delete('/transactions/{id}', [TransactionController::class,'destroy']);
+    Route::put('/transactions/{id}', [TransactionController::class, 'update']);
+    Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
 
     // buat pdf
     Route::get('/export-transactions-pdf', [TransactionController::class, 'exportPDF']);
@@ -36,16 +36,19 @@ Route::middleware('auth:sanctum')->group(function () {
     // history
     Route::get('/transactions/status/{statusId}', [TransactionController::class, 'getTransactionsByStatus']);
 
-    // persentase
+    // persentase transaksi semua users (manejemen/admin)
+    Route::get('/transactions/total-percentages-daily', [TransactionController::class, 'transactionTotalPercentagesDaily']); //harian
+    Route::get('/transactions/total-percentages-monthly', [TransactionController::class, 'transactionTotalPercentagesMonthly']); //bulanan
+    Route::get('/transactions/total-percentages-yearly', [TransactionController::class, 'transactionTotalPercentagesYearly']); //tahunan
 
-Route::get('/transactions/total-percentages-daily', [TransactionController::class, 'transactionTotalPercentagesDaily']);
-Route::get('/transactions/total-percentages-monthly', [TransactionController::class, 'transactionTotalPercentagesMonthly']);
-Route::get('/transactions/total-percentages-yearly', [TransactionController::class, 'transactionTotalPercentagesYearly']);
+    // persentase transaksi setiap users (sales)
+    Route::get('/transactions/total-percentages-daily-user', [TransactionController::class, 'transactionTotalPercentagesDailyUsers']); //harian
+    Route::get('/transactions/total-percentages-monthly-user', [TransactionController::class, 'transactionTotalPercentagesMonthlyUsers']); //bulanan
+    Route::get('/transactions/total-percentages-yearly-user', [TransactionController::class, 'transactionTotalPercentagesYearlyUsers']); //tahunan
 
-    // persentase
-    Route::get('/transactions/quadrant-sales-percentages', [TransactionController::class, 'quadrantPercentagesSales']);
-    Route::get('transactions/total-quadrant-percentages', [TransactionController::class, 'quadrantPercentagesTotal']);
-    Route::get('transactions/quadrant-percentages', [TransactionController::class, 'quadrantPercentages']);
+    Route::get('/transactions/quadrant-sales-percentages', [TransactionController::class, 'quadrantPercentagesSales']); //semua transaksi sales yang login
+    Route::get('transactions/total-quadrant-percentages', [TransactionController::class, 'quadrantPercentagesTotal']); //total semua transaksi sales (admin/manejemen)
+    Route::get('transactions/quadrant-percentages', [TransactionController::class, 'quadrantPercentages']); //semua transaksi setiap sales
 });
 
 // register
